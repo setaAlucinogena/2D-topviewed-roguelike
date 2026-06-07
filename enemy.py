@@ -11,8 +11,9 @@ class Enemy(WorldElement):
             hittable = True,
             scale = 1,
             element_type = ElementType.MOBILE,
-            integrity = 60
+            integrity = 3000
             )
+
         self.speed = 4
 
         #flags:
@@ -35,8 +36,9 @@ class Enemy(WorldElement):
 
 
     def throw_one_projectile(self,target):
-        direction = Vec3(target.x-self.x,target.y-self.y,0)
-        Projectile(position = self.position,damage = 3,push = 4,direction = direction,speed = 1)
+        direction = Vec3(target.x-self.x,target.y-self.y,0).normalized()
+        Projectile(position = self.position,damage = 3,push = 4,direction = direction,speed = 6,ignore = [self])
+
 
     def throw_projectiles_process(self,target):
         if self.able_to_throw:
@@ -51,10 +53,13 @@ class Enemy(WorldElement):
         
         self.look_at_xy(self.game_manager.player)
         if not self.stunned:
-            self.position += self.up*self.speed*time.dt
-            self.throw_projectiles_process(target = self.game_manager.player)
+            pass
+            #self.position += self.up*self.speed*time.dt
+            
 
 
     def update(self):
         super().update()
         self.follow()
+        if not self.stunned:
+            self.throw_projectiles_process(target = self.game_manager.player)

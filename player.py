@@ -32,6 +32,9 @@ class Player(WorldElement):
         self.sword.parent = self.sword_rotation_pivot
         self.sword.x += 1.4
         self.sword_rotation_increment = 300
+
+        self.parrying = False
+        self.parrying_time = 1.12
         
 
         #end sword
@@ -53,17 +56,29 @@ class Player(WorldElement):
         self.sword_rotation_pivot.rotation_z += self.sword_rotation_increment*time.dt
         
         #sword_cast = raycast(origin = self.position, direction = self.sword_angle,distance = 1,debug = True)
+
         sword_victims = self.sword.intersects(ignore = [self])
         if sword_victims.hit:
             for entity in sword_victims.entities:
+                if entity.parryable == True:
+                    if self.parrying:
+                        if entity.last_parried_by != self:
+                            entity.get_parried(self)
+
                 if entity.hittable == True:
                     entity.get_hit(damage = .1,push = 100, emitter = self)
 
+
     def parry(self):
+        self.parrying = True
+        invoke(self.stop_parrying,delay = self.parrying_time)
+
         self.sword_rotation_increment = -self.sword_rotation_increment
         self.sword_rotation_pivot.rotation_z += 2*self.sword_rotation_increment*time.dt
         #i si poso que a cada parry exitos vagi algo mes rapid ??? 
 
+    def stop_parrying(self):
+        self.parrying = False
 
     def input(self,key):
         if key == CustomKeys.PARRY:

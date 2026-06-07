@@ -16,7 +16,7 @@ class ElementType:
 class WorldElement(Entity):
     game_manager = None # s'haura d'inicialitzar a l'inici de tot
 
-    def __init__(self,position,parent = scene, scale = 1,element_type = ElementType.STATIC,model = "quad",integrity = 32,hittable = False, interactive = False,hit_animation = None):
+    def __init__(self,position,parent = scene, scale = 1,element_type = ElementType.STATIC,model = "quad",integrity = 32,hittable = False, interactive = False, parryable = False,hit_animation = None):
         super().__init__(
             model = model,
             position = position,
@@ -32,6 +32,7 @@ class WorldElement(Entity):
 
         self.hittable = hittable
         self.interactive = interactive
+        self.parryable = parryable
 
         
         self.hit_animation = hit_animation
