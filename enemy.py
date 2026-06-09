@@ -9,19 +9,21 @@ class Enemy(WorldElement):
         super().__init__(
             position = position,
             hittable = True,
-            scale = 1,
+            scale = .75,
             element_type = ElementType.MOBILE,
             integrity = 3000
             )
 
-        self.speed = 4
+        self.speed = 2
 
         #flags:
         self.stunned = False
         self.able_to_throw = True
 
         self.de_stun_delay = 2#corregir magic numbers després
-        self.throwing_delay = 3
+        self.throwing_delay = 5
+
+        self.projectiles = []
 
     def stun(self):
         self.stunned = True
@@ -31,13 +33,15 @@ class Enemy(WorldElement):
         self.stunned = False
 
     def get_hit(self, damage, push, emitter):
+        print("GET DAMAGE")
         super().get_hit(damage, push, emitter)
         self.stun()
 
 
     def throw_one_projectile(self,target):
         direction = Vec3(target.x-self.x,target.y-self.y,0).normalized()
-        Projectile(position = self.position,damage = 3,push = 4,direction = direction,speed = 6,ignore = [self])
+
+        self.projectiles.append(Projectile(position = self.position,damage = 3,push = 4,direction = direction,speed = 6,dont_hurt = [self]))
 
 
     def throw_projectiles_process(self,target):
@@ -53,8 +57,10 @@ class Enemy(WorldElement):
         
         self.look_at_xy(self.game_manager.player)
         if not self.stunned:
-            pass
-            #self.position += self.up*self.speed*time.dt
+
+            #pass
+
+            self.position += self.up*self.speed*time.dt
             
 
 

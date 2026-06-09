@@ -5,13 +5,16 @@ from world_element import ElementType, WorldElement
 
 from time import perf_counter
 
+from projectile import Projectile
+
+from swords import Swords
 
 class Player(WorldElement):
     game_manager = None
     def __init__(self,position):
         super().__init__(
             position = position,
-            scale = 1,
+            scale = .75,
             hittable = True,
             integrity = 20 #treure
             )
@@ -27,17 +30,19 @@ class Player(WorldElement):
         #end camera
 
         #sword
-        self.sword = WorldElement(position = self.position,scale = (1.5,.12),element_type=ElementType.IGNORE)
-        self.sword_rotation_pivot = Entity(position = self.position)
-        self.sword.parent = self.sword_rotation_pivot
-        self.sword.x += 1.4
-        self.sword_rotation_increment = 300
-
-        self.parrying = False
-        self.parrying_time = 1.12
-        
+        self.sword = Swords.DEFAULT_SWORD.value
+        self.sword.carrier = self
 
         #end sword
+
+        #gun
+        self.flying_item_pivot = Entity(position = self.position) 
+
+        self.flying_item = Entity(model = "quad", scale = .3,parent = self.flying_item_pivot)
+        self.flying_item.x += 1.2
+
+        #
+        self.color = color.blue
 
 
     def update_camera_pivot(self):
@@ -49,43 +54,32 @@ class Player(WorldElement):
         if abs(sp.y) > 0.3:
             self.camera_pivot.y += (sp.y / abs(sp.y)) * self.speed*time.dt
 
+    def update_flying_item_pivot(self):
+        self.flying_item_pivot.x = self.x
+        self.flying_item_pivot.y = self.y
 
-    def update_sword(self):
-        self.sword_rotation_pivot.x = self.x
-        self.sword_rotation_pivot.y = self.y
-        self.sword_rotation_pivot.rotation_z += self.sword_rotation_increment*time.dt
-        
-        #sword_cast = raycast(origin = self.position, direction = self.sword_angle,distance = 1,debug = True)
-
-        sword_victims = self.sword.intersects(ignore = [self])
-        if sword_victims.hit:
-            for entity in sword_victims.entities:
-                if entity.parryable == True:
-                    if self.parrying:
-                        if entity.last_parried_by != self:
-                            entity.get_parried(self)
-
-                if entity.hittable == True:
-                    entity.get_hit(damage = .1,push = 100, emitter = self)
-
+        self.flying_item.position = (mouse.position - self.screen_position).normalized()*1.2
 
     def parry(self):
-        self.parrying = True
-        invoke(self.stop_parrying,delay = self.parrying_time)
-
-        self.sword_rotation_increment = -self.sword_rotation_increment
-        self.sword_rotation_pivot.rotation_z += 2*self.sword_rotation_increment*time.dt
-        #i si poso que a cada parry exitos vagi algo mes rapid ??? 
-
-    def stop_parrying(self):
-        self.parrying = False
+        self.sword.parry()
 
     def input(self,key):
         if key == CustomKeys.PARRY:
             self.parry()
+        if key == CustomKeys.USE_FLYING_ITEM:
+            self.shoot()
+
+
+    ####deixo aquesta funcio aqui provisionalment. mes endavant creare la classe pistola
+    def shoot(self):
+        Projectile(position = self.flying_item.world_position,damage = 1,push = 1,direction = self.flying_item.position.normalized(),speed = 25,dont_hurt = [self,self.flying_item])
+        
+        
+
 
     def update(self):
         self.update_camera_pivot()
-        self.update_sword()
+        self.sword.update_sword()
+        self.update_flying_item_pivot()
 
         self.position += (Vec3(0,1,0)*held_keys[CustomKeys.UP] + Vec3(0,-1,0)*held_keys[CustomKeys.DOWN] + Vec3(-1,0,0)*held_keys[CustomKeys.LEFT] + Vec3(1,0,0)*held_keys[CustomKeys.RIGHT])*time.dt*self.speed

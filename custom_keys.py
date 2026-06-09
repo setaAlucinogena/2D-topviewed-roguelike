@@ -6,6 +6,8 @@ class CustomKeys:
     DOWN = "down arrow"
 
     PARRY = "left mouse down"
+    USE_FLYING_ITEM = "right mouse down"
+    #PARRY = "space"
 
     #UP = "w"
     #LEFT = "a"
