@@ -1,9 +1,5 @@
-from enum import Enum
 from world_element import WorldElement, ElementType
-
 from ursina import invoke,time,Entity
-
-
 
 class Sword(WorldElement):
     def __init__(self,
@@ -65,14 +61,3 @@ class Sword(WorldElement):
 
                 if entity.hittable == True:
                     entity.get_hit(damage = .1,push = 100, emitter = self)
-
-
-class Swords(Enum):
-    DEFAULT_SWORD = Sword(
-        scale = (1.5,.45),
-        carrier = Entity(),
-        parrying_time = .5,
-        parry_cooldown = .4,
-        rotation_increment = 300,
-        parry_level = 1
-        )

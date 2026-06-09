@@ -7,6 +7,7 @@ class CustomKeys:
 
     PARRY = "left mouse down"
     USE_FLYING_ITEM = "right mouse down"
+    RELOAD = "p"
     #PARRY = "space"
 
     #UP = "w"

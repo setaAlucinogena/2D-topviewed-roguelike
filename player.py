@@ -7,7 +7,8 @@ from time import perf_counter
 
 from projectile import Projectile
 
-from swords import Swords
+from swords_enum import Swords
+from guns_enum import Guns
 
 class Player(WorldElement):
     game_manager = None
@@ -35,10 +36,12 @@ class Player(WorldElement):
 
         #end sword
 
-        #gun
-        self.flying_item_pivot = Entity(position = self.position) 
 
-        self.flying_item = Entity(model = "quad", scale = .3,parent = self.flying_item_pivot)
+        #self.flying_item = Entity(model = "quad", scale = .3,parent = self.flying_item_pivot)
+        
+        self.flying_item = Guns.REVOLVER.value
+        self.flying_item.carrier = self
+
         self.flying_item.x += 1.2
 
         #
@@ -54,11 +57,6 @@ class Player(WorldElement):
         if abs(sp.y) > 0.3:
             self.camera_pivot.y += (sp.y / abs(sp.y)) * self.speed*time.dt
 
-    def update_flying_item_pivot(self):
-        self.flying_item_pivot.x = self.x
-        self.flying_item_pivot.y = self.y
-
-        self.flying_item.position = (mouse.position - self.screen_position).normalized()*1.2
 
     def parry(self):
         self.sword.parry()
@@ -67,12 +65,12 @@ class Player(WorldElement):
         if key == CustomKeys.PARRY:
             self.parry()
         if key == CustomKeys.USE_FLYING_ITEM:
-            self.shoot()
+            self.flying_item.use()
 
+        if key == CustomKeys.RELOAD:
+            self.flying_item.reload()
 
     ####deixo aquesta funcio aqui provisionalment. mes endavant creare la classe pistola
-    def shoot(self):
-        Projectile(position = self.flying_item.world_position,damage = 1,push = 1,direction = self.flying_item.position.normalized(),speed = 25,dont_hurt = [self,self.flying_item])
         
         
 
@@ -80,6 +78,6 @@ class Player(WorldElement):
     def update(self):
         self.update_camera_pivot()
         self.sword.update_sword()
-        self.update_flying_item_pivot()
+        self.flying_item.update_flying()
 
         self.position += (Vec3(0,1,0)*held_keys[CustomKeys.UP] + Vec3(0,-1,0)*held_keys[CustomKeys.DOWN] + Vec3(-1,0,0)*held_keys[CustomKeys.LEFT] + Vec3(1,0,0)*held_keys[CustomKeys.RIGHT])*time.dt*self.speed
