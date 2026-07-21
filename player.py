@@ -1,6 +1,9 @@
+from tkinter import CURRENT
+from xml.dom.minidom import Element
+from matplotlib.image import NEAREST
 from ursina import *
 from custom_keys import CustomKeys
-import game_manager
+from game_manager import GameManager,GameState
 from world_element import ElementType, WorldElement
 
 from time import perf_counter
@@ -10,17 +13,20 @@ from projectile import Projectile
 from swords_enum import Swords
 from guns_enum import Guns
 
+from counter_bar import CounterBar
+
 class Player(WorldElement):
     game_manager = None
-    def __init__(self,position):
+    def __init__(self,position,integrity, max_integrity):
         super().__init__(
             position = position,
             scale = .75,
             hittable = True,
-            integrity = 20 #treure
+            integrity = integrity, #treure
+            element_type=ElementType.MOBILE
             )
         self.speed = 3
-        self.max_integrity = 32
+        self.max_integrity = max_integrity
 
 
         
@@ -39,29 +45,98 @@ class Player(WorldElement):
 
         #self.flying_item = Entity(model = "quad", scale = .3,parent = self.flying_item_pivot)
         
-        self.flying_item = Guns.REVOLVER.value
+        self.flying_item = Guns.JERICHO.value #Guns.REVOLVER.value
         self.flying_item.carrier = self
+        #goto treure
+        self.flying_item.bullets_in_chamber=5
+        #
 
         self.flying_item.x += 1.2
 
         #
         self.color = color.blue
 
+        self.dash_cooldown = 1
+        self.able_to_dash = True
+        self.dash_stride = 5
+        self.dash_duration = .3
+
+        #bars:
+        self.max_integrity = max_integrity
+
+        self.health_bar = CounterBar(position = (-.8,.4,0))
+
+        self.health_bar.update_bar(active = self.integrity, updated_max = self.max_integrity)
+        
+
+    
 
     def update_camera_pivot(self):
         sp = world_position_to_screen_position(self.position)
         if abs(sp.x) > 0.65:
-            self.camera_pivot.x += (sp.x / abs(sp.x)) * self.speed*time.dt
+            self.camera_pivot.x += (sp.x / abs(sp.x)) * (self.speed)*time.dt
 
 
         if abs(sp.y) > 0.3:
-            self.camera_pivot.y += (sp.y / abs(sp.y)) * self.speed*time.dt
+            self.camera_pivot.y += (sp.y / abs(sp.y)) * (self.speed)*time.dt
 
+
+    def reload_dash(self):
+        self.able_to_dash = True
+
+    #def dash(self):
+    #    if self.able_to_dash:
+    #        self.able_to_dash = False
+    #        invoke(self.reload_dash,delay = self.dash_cooldown)
+    #        print("dash")
+    #        direction = (
+    #            held_keys[CustomKeys.UP]*Vec3(0,1,0) + 
+    #            held_keys[CustomKeys.DOWN]*Vec3(0,-1,0) + 
+    #            held_keys[CustomKeys.RIGHT]*Vec3(1,0,0) + 
+    #            held_keys[CustomKeys.LEFT]*Vec3(-1,1,0) 
+    #        )
+
+    #        self.animate_position(value = (self.position + direction.normalized()*self.dash_stride),duration = self.dash_duration)
 
     def parry(self):
         self.sword.parry()
 
+
+    def interact(self):
+        interaction_body = WorldElement(model = "cube", element_type = ElementType.IGNORE,scale = (2,2,2),position = self.position)
+        interaction_body.color = color.yellow
+        info = interaction_body.intersects(ignore = [self])
+        
+        min_distance = 1000
+        nearest_entity = None
+
+        if info.hit:
+            for entity in info.entities:
+                if entity.interactive == True or entity.dialogable == True:
+                    current_d = distance(self,entity)
+                    if current_d < min_distance:
+                        min_distance = current_d
+                        nearest_entity = entity
+
+        if nearest_entity != None:
+            if nearest_entity.interactive:
+                nearest_entity.get_interacted()
+            elif nearest_entity.dialogable:
+                nearest_entity.get_dialogued()
+        destroy(interaction_body,delay = 0)
+
+
+
     def input(self,key):
+        if key == CustomKeys.PAUSE:
+            self.game_manager.pause()
+
+        if key == CustomKeys.GO_BACK and self.game_manager.game_status == GameState.PAUSE:
+            self.game_manager.end_pause()
+
+        if self.game_manager.game_status != GameState.RUN:
+            return
+
         if key == CustomKeys.PARRY:
             self.parry()
         if key == CustomKeys.USE_FLYING_ITEM:
@@ -70,14 +145,57 @@ class Player(WorldElement):
         if key == CustomKeys.RELOAD:
             self.flying_item.reload()
 
+        if key == CustomKeys.INTERACT:
+            self.interact()
+
+        if key == "x":
+            self.get_hit(1,0,self)
+        #comprovacio pel dash:
+        #if key == CustomKeys.DASH:
+        #    self.dash()
+        
+
     ####deixo aquesta funcio aqui provisionalment. mes endavant creare la classe pistola
-        
-        
+    def get_hit(self,damage,push,emitter):
+        super().get_hit(damage,push,emitter)
+        camera.shake()
+        self.health_bar.update_bar(active = self.integrity, updated_max = self.max_integrity)
 
-
+      
     def update(self):
+        if self.game_manager.game_status != GameState.RUN:
+            return
+
+
+        super().update()
+
         self.update_camera_pivot()
         self.sword.update_sword()
         self.flying_item.update_flying()
 
-        self.position += (Vec3(0,1,0)*held_keys[CustomKeys.UP] + Vec3(0,-1,0)*held_keys[CustomKeys.DOWN] + Vec3(-1,0,0)*held_keys[CustomKeys.LEFT] + Vec3(1,0,0)*held_keys[CustomKeys.RIGHT])*time.dt*self.speed
+        #self.position += (Vec3(0,1,0)*held_keys[CustomKeys.UP] + Vec3(0,-1,0)*held_keys[CustomKeys.DOWN] + Vec3(-1,0,0)*held_keys[CustomKeys.LEFT] + Vec3(1,0,0)*held_keys[CustomKeys.RIGHT])*time.dt*self.speed
+        if held_keys[CustomKeys.UP]:
+           if not (held_keys[CustomKeys.LEFT] or held_keys[CustomKeys.RIGHT]):
+                self.position += Vec3(0,1,0) * self.speed * time.dt
+           else:
+                if held_keys[CustomKeys.LEFT]:
+                   self.position += Vec3(-1,1,0) * sqrt(self.speed) * time.dt
+                if held_keys[CustomKeys.RIGHT]:
+                   self.position += Vec3(1,1,0) * sqrt(self.speed) * time.dt
+
+        if held_keys[CustomKeys.DOWN]: 
+            if not (held_keys[CustomKeys.LEFT] or held_keys[CustomKeys.RIGHT]):
+                self.position += Vec3(0,-1,0) * self.speed * time.dt
+            else:
+                if held_keys[CustomKeys.LEFT]:
+                   self.position += Vec3(-1,-1,0) * sqrt(self.speed) * time.dt
+                if held_keys[CustomKeys.RIGHT]:
+                   self.position += Vec3(1,-1,0) * sqrt(self.speed) * time.dt
+
+        if held_keys[CustomKeys.LEFT] and not (held_keys[CustomKeys.UP] or held_keys[CustomKeys.DOWN]):
+            self.position += Vec3(-1,0,0) * sqrt(self.speed) * time.dt 
+        if held_keys[CustomKeys.RIGHT] and not (held_keys[CustomKeys.UP] or held_keys[CustomKeys.DOWN]):
+            self.position += Vec3(1,0,0) * sqrt(self.speed) * time.dt 
+            
+
+

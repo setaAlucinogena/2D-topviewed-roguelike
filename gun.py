@@ -1,13 +1,14 @@
 from multiprocessing import parent_process
 from projectile import Projectile
 from ursina import *
+from math import atan2
 
 class Gun(Entity):
     def __init__(self,
                  carrier,
                  period,
                  reload_time,
-                 bullet_force,
+                 bullet_damage,
                  bullet_speed,
                  bullet_push,
                  capacity,
@@ -20,13 +21,17 @@ class Gun(Entity):
         super().__init__(position = carrier.position,
                          model = "quad",
                          scale = .3)
+        #
+        self.color = color.orange
+        #
         
         self.carrier = carrier
         
         self.period = period
         self.reload_time = reload_time
-        self.bullet_force = bullet_force
+        self.bullet_damage = bullet_damage
         self.bullet_push = bullet_push
+        self.bullet_speed = bullet_speed
 
         self.pivot = Entity(position = self.carrier.position)
         self.parent = self.pivot
@@ -50,9 +55,10 @@ class Gun(Entity):
             invoke(self.effective_reload,delay = self.reload_time)
 
     def effective_reload(self):
-        Audio(self.reloading_sound_name,autoplay = True, loop = False)
+        
 
         if self.bullets_in_chamber < self.capacity and self.n_bullets > 0:
+            Audio(self.reloading_sound_name,autoplay = True, loop = False,pitch = 3.5)
             self.n_bullets -= 1
             self.bullets_in_chamber += 1
         self.reloading = False
@@ -62,7 +68,7 @@ class Gun(Entity):
         self.able_to_shoot = True
 
     def use(self):
-        if self.able_to_shoot:
+        if self.able_to_shoot and not self.reloading:
             if self.bullets_in_chamber>0:
 
                 self.able_to_shoot = False
@@ -70,7 +76,7 @@ class Gun(Entity):
                 invoke(self.reload_shooting,delay = self.period)
 
                 Audio(self.shooting_sound_name,autoplay = True, loop = False)
-                Projectile(position = self.world_position,damage = 1,push = 1,direction = self.position.normalized(),speed = 25,dont_hurt = [self,self.carrier])
+                Projectile(position = self.world_position,damage = self.bullet_damage,push = self.bullet_push,direction = self.position.normalized(),speed = self.bullet_speed,dont_hurt = [self,self.carrier])
             else:
                 Audio(self.empty_sound_name,autoplay = True,loop = False)
 
@@ -78,7 +84,11 @@ class Gun(Entity):
         self.pivot.x = self.carrier.x
         self.pivot.y = self.carrier.y
 
+        #
+
         self.position = (mouse.position - self.carrier.screen_position).normalized()*1.2
+        
+        
 
 
 

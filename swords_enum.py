@@ -8,6 +8,7 @@ class Swords(Enum):
         carrier = Entity(),
         parrying_time = .5,
         parry_cooldown = .4,
-        rotation_increment = 300,
-        parry_level = 1
+        rotation_increment = 300,#300,#v
+        parry_level = 2,
+        hit_cooldown = .9
         )

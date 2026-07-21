@@ -1,13 +1,20 @@
 
 class CustomKeys:
-    UP = "up arrow"
-    LEFT = "left arrow"
-    RIGHT = "right arrow"
-    DOWN = "down arrow"
+    UP = "w"
+    LEFT = "a"
+    RIGHT = "d"
+    DOWN = "s"
+    DASH = "z"
 
     PARRY = "left mouse down"
     USE_FLYING_ITEM = "right mouse down"
-    RELOAD = "p"
+    STOP_USING_FLYING_ITEM = "left mouse down"
+    RELOAD = "r"
+    INTERACT = "e"
+
+    PAUSE = "p"
+    GO_BACK = "escape"
+
     #PARRY = "space"
 
     #UP = "w"
@@ -22,3 +29,4 @@ class CustomKeys:
     #INTERACT = "e"
     #INVENTORY = "i"
     #RELOAD = "r"
+

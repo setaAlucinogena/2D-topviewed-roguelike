@@ -1,5 +1,7 @@
 from ursina import *
 
+from game_manager import GameState
+
 #import game_manager
 #from game_states import GameStates
 #from game_manager import GameManager
@@ -16,7 +18,7 @@ class ElementType:
 class WorldElement(Entity):
     game_manager = None # s'haura d'inicialitzar a l'inici de tot
 
-    def __init__(self,position,parent = scene, scale = 1,element_type = ElementType.STATIC,model = "quad",integrity = 32,hittable = False, interactive = False, parryable = False,hit_animation = None):
+    def __init__(self,position,parent = scene, scale = 1,element_type = ElementType.STATIC,model = "quad",integrity = 32,hittable = False, interactive = False, parryable = False,hit_animation = None,dialogable = False, dialogue_scene = None):
         super().__init__(
             model = model,
             position = position,
@@ -36,6 +38,8 @@ class WorldElement(Entity):
 
         
         self.hit_animation = hit_animation
+        self.dialogable = dialogable
+        self.dialogue_scene = dialogue_scene
 
     def decompose(self):
         destroy(self,delay = 1)
@@ -43,16 +47,27 @@ class WorldElement(Entity):
     def get_hit(self, damage, push, emitter):
         if self.hittable:#programacio defensiva
             self.integrity -= damage
-            if self.element_type == ElementType.MOBILE:
-                push_vec = Vec3(self.x-emitter.x,self.y-emitter.y,0)
-                self.position += push_vec.normalized()*push*time.dt
-
+            #if self.element_type == ElementType.MOBILE:
+            #    push_vec = Vec3(self.x-emitter.x,self.y-emitter.y,0)
+            #    throw_back_vec = self.position + push_vec.normalized()*push*time.dt
+            #    self.animate_position(throw_back_vec, duration=.25)
             self.animate_color(color.white, duration = .5, curve = curve.in_bounce_boomerang)##puc canviar la corva ngl
-   
+        print(f"push: {push}")
+
+
+    def get_dialogued(self):
+        self.dialogue_scene.initiate()
+    
+    def must_not_update(self):
+        return(self.game_manager.game_states != GameState.RUN)
 
     def update(self):
         #if WorldElement.game_manager != GameStates.RUN:
         #    return
+        
+        #if self.must_not_update():
+            
+            
 
         if self.integrity <= 0 and self.hittable:
             self.decompose()

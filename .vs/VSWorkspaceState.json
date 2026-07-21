@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\assets",
+    "\\assets\\textures"
   ],
-  "SelectedNode": "\\gun.py",
+  "SelectedNode": "\\mosquito.py",
   "PreviewInSolutionExplorer": false
 }

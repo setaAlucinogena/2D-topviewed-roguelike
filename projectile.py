@@ -1,12 +1,13 @@
 from world_element import WorldElement,ElementType
-from ursina import time, destroy
+from ursina import time, destroy,color
 
 class Projectile(WorldElement):
     def __init__(self, position,damage,push,direction,speed,dont_hurt,guided_towards = None):
         super().__init__(
             position = position,
             scale = .5,
-            parryable = True
+            parryable = True,
+            element_type=ElementType.IGNORE
             )
 
         self.damage = damage
@@ -40,7 +41,11 @@ class Projectile(WorldElement):
                     print(entity.element_type)
                     if entity.hittable:
                         entity.get_hit(damage = self.damage, push = self.push, emitter = self)
-                    destroy(self,delay = .3)
+                        self.dont_hurt.append(entity)
+                       
+                    self.parryable = False
+                    self.color = color.gray
+                    destroy(self,delay = .1)
 
 
 
