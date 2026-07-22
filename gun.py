@@ -3,6 +3,10 @@ from projectile import Projectile
 from ursina import *
 from math import atan2
 
+
+#que gun sigui herencia de la classe "flying item" 
+#de aquesta classe fare lupa (per veure i detectar coses), mirall (per deflectir rajos laser), imant (per atreure metall)
+
 class Gun(Entity):
     def __init__(self,
                  carrier,
@@ -15,7 +19,8 @@ class Gun(Entity):
                  empty_sound_name,
                  shooting_sound_name,
                  reloading_sound_name,
-                 n_bullets = 10
+                 n_bullets = 10,
+                 projectile = None
                  
                  ):
         super().__init__(position = carrier.position,
@@ -48,6 +53,8 @@ class Gun(Entity):
         self.shooting_sound_name = shooting_sound_name
         self.reloading_sound_name = reloading_sound_name
 
+        
+
 
     def reload(self):
         if not self.reloading:
@@ -76,7 +83,9 @@ class Gun(Entity):
                 invoke(self.reload_shooting,delay = self.period)
 
                 Audio(self.shooting_sound_name,autoplay = True, loop = False)
+
                 Projectile(position = self.world_position,damage = self.bullet_damage,push = self.bullet_push,direction = self.position.normalized(),speed = self.bullet_speed,dont_hurt = [self,self.carrier])
+                
             else:
                 Audio(self.empty_sound_name,autoplay = True,loop = False)
 

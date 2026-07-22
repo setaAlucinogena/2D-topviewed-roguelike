@@ -4,6 +4,8 @@ from ursina import invoke,time,Entity,Audio
 class Sword(WorldElement):
     def __init__(self,
                  scale,
+                 damage,
+                 push,
                  parrying_time,
                  parry_cooldown,
                  rotation_increment,
@@ -16,6 +18,8 @@ class Sword(WorldElement):
                          element_type = ElementType.IGNORE)
 
         self.pivot = Entity()
+        self.damage = damage
+        self.push = push
         self.parrying_time = parrying_time
         self.parry_cooldown = parry_cooldown
         self.rotation_increment = rotation_increment
@@ -78,4 +82,4 @@ class Sword(WorldElement):
                     index = len(self.recently_hit)-1
                     invoke(self.release_recently_hit,index,delay = self.hit_cooldown)
 
-                    entity.get_hit(damage = .1,push = 100, emitter = self)
+                    entity.get_hit(damage = self.damage,push = self.push, emitter = self)

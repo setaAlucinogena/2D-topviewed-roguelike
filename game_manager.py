@@ -23,11 +23,17 @@ class GameManager:
         self.tick_speed = abs(new_speed)#x si aca
     
 
+    def game_over(self):
+        self.game_status = GameState.PAUSE
+        #dialogue scene de game over,
+        #mes endavant s'ensenyen els stats
+
     def end_pause(self):
         self.game_status = GameState.RUN
         for button in self.displayed_buttons:
             destroy(button,delay = 0)
         self.displayed_buttons = []
+
     def pause(self):
         self.game_status = GameState.PAUSE
         #self.displayed_buttons.append(Button(model='quad', scale=.05, color=color.lime, text='back', text_size=.5, text_color=color.black,parent = camera.ui, position = (-.5,.45,-.3)))

@@ -8,6 +8,29 @@ from sub_room import SubRoom
 from mosquito import Mosquito
 from explosion import Explosion
 from dialogue_scene import DialogueScene
+
+
+from ursina import Shader
+
+pixelation_shader = Shader(
+fragment='''
+#version 150
+
+uniform sampler2D tex;
+in vec2 window_size;
+in vec2 uv;
+out vec4 color;
+
+
+void main() {
+    float Pixels = 1600.0;
+    float dx = 9.0 * (1.0 / Pixels);
+    float dy = 16.0 * (1.0 / Pixels);
+    vec2 new_uv = vec2(dx * floor(uv.x / dx), dy * floor(uv.y / dy));
+    color = texture(tex, new_uv);
+}
+''')
+
 app = Ursina()
 
 gm = GameManager()
@@ -26,7 +49,9 @@ f = Mosquito(position = (5,0,gm.characters_z))
 #ds = DialogueScene(animation = Animation(name = "viejo.png"))
 
 gm.game_status = GameState.RUN
+
 print(gm.game_status)
+
 #def input(key):
 #    if key == "e":
 #        ds.initiate()
@@ -38,5 +63,5 @@ print(gm.game_status)
 #e = Enemy(position = (3,0,gm.characters_z))    
 #e.color = color.green
 
-
+camera.shader = pixelation_shader
 app.run()

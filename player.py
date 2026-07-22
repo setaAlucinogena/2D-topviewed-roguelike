@@ -46,6 +46,8 @@ class Player(WorldElement):
         #self.flying_item = Entity(model = "quad", scale = .3,parent = self.flying_item_pivot)
         
         self.flying_item = Guns.JERICHO.value #Guns.REVOLVER.value
+        #self.flying_item = Guns.NAIL_GUN.value #Guns.REVOLVER.value
+        
         self.flying_item.carrier = self
         #goto treure
         self.flying_item.bullets_in_chamber=5
@@ -161,13 +163,17 @@ class Player(WorldElement):
         camera.shake()
         self.health_bar.update_bar(active = self.integrity, updated_max = self.max_integrity)
 
-      
+    def die(self):
+        pass
+
     def update(self):
         if self.game_manager.game_status != GameState.RUN:
             return
 
+        if self.integrity <= 0:
+            self.die()
+            invoke(self.game_manager.game_over,delay = 0) #el delay sera lo q trigui en morirse
 
-        super().update()
 
         self.update_camera_pivot()
         self.sword.update_sword()

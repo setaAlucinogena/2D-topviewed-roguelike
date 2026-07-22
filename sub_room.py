@@ -9,7 +9,7 @@ class SubRoom(Entity):
         super().__init__(
             model = "quad",
             scale = scale,
-            color = color.white, 
+            color = color.cyan, 
             position = position
             
             )

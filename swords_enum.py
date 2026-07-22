@@ -5,6 +5,8 @@ from ursina import Entity
 class Swords(Enum):
     DEFAULT_SWORD = Sword(
         scale = (1.5,.45),
+        damage = 1,
+        push = 2,
         carrier = Entity(),
         parrying_time = .5,
         parry_cooldown = .4,

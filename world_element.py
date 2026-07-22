@@ -44,6 +44,14 @@ class WorldElement(Entity):
     def decompose(self):
         destroy(self,delay = 1)
 
+    def temporal_non_hittable(self,time):
+        self.hittable = False
+        invoke(self.make_hittable_again,delay = time)
+        self.alpha = 175
+    def make_hittable_again(self):
+        self.hittable = True
+        self.alpha = 255
+
     def get_hit(self, damage, push, emitter):
         if self.hittable:#programacio defensiva
             self.integrity -= damage
@@ -51,7 +59,7 @@ class WorldElement(Entity):
             #    push_vec = Vec3(self.x-emitter.x,self.y-emitter.y,0)
             #    throw_back_vec = self.position + push_vec.normalized()*push*time.dt
             #    self.animate_position(throw_back_vec, duration=.25)
-            self.animate_color(color.white, duration = .5, curve = curve.in_bounce_boomerang)##puc canviar la corva ngl
+            self.animate_color(color.red, duration = .5, curve = curve.in_bounce_boomerang)##puc canviar la corva ngl
         print(f"push: {push}")
 
 
