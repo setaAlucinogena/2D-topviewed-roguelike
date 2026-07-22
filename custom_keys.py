@@ -7,7 +7,7 @@ class CustomKeys:
     DASH = "z"
 
     PARRY = "left mouse down"
-    USE_FLYING_ITEM = "right mouse down"
+    USE_SECONDARY_ITEM = "right mouse down"
     STOP_USING_FLYING_ITEM = "left mouse down"
     RELOAD = "r"
     INTERACT = "e"

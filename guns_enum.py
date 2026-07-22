@@ -6,6 +6,7 @@ from ursina import Entity,Vec3
 class Guns(Enum):
     REVOLVER = Gun(
                    carrier=Entity(),
+                   name = "revolver",
                    capacity = 6,
                    period = .65,
                    reload_time = .7,
@@ -19,6 +20,7 @@ class Guns(Enum):
 
     JERICHO = Gun(
                    carrier=Entity(),
+                   name = "jericho handgun",
                    capacity = 10,
                    period = .1,
                    reload_time = .15,
@@ -32,6 +34,7 @@ class Guns(Enum):
     
     NAIL_GUN = Gun(
         carrier = Entity(),
+        name = "nail_gun",
         capacity = 20,
         period = .2,
         reload_time = .7,

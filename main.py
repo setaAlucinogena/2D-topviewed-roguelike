@@ -50,6 +50,8 @@ f = Mosquito(position = (5,0,gm.characters_z))
 
 gm.game_status = GameState.RUN
 
+immantable = WorldElement(position = (-3,0,0),magnetic = True)
+
 print(gm.game_status)
 
 #def input(key):

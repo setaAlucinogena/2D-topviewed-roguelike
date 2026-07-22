@@ -2,13 +2,14 @@ from multiprocessing import parent_process
 from projectile import Projectile
 from ursina import *
 from math import atan2
-
+from secondary_item import SecondaryItem
 
 #que gun sigui herencia de la classe "flying item" 
 #de aquesta classe fare lupa (per veure i detectar coses), mirall (per deflectir rajos laser), imant (per atreure metall)
 
-class Gun(Entity):
+class Gun(SecondaryItem):
     def __init__(self,
+                 name,
                  carrier,
                  period,
                  reload_time,
@@ -21,25 +22,21 @@ class Gun(Entity):
                  reloading_sound_name,
                  n_bullets = 10,
                  projectile = None
-                 
                  ):
-        super().__init__(position = carrier.position,
-                         model = "quad",
-                         scale = .3)
-        #
+
+        super().__init__(
+            name,
+            carrier = carrier)
+        
         self.color = color.orange
         #
         
-        self.carrier = carrier
         
         self.period = period
         self.reload_time = reload_time
         self.bullet_damage = bullet_damage
         self.bullet_push = bullet_push
         self.bullet_speed = bullet_speed
-
-        self.pivot = Entity(position = self.carrier.position)
-        self.parent = self.pivot
 
         self.able_to_shoot = True
         self.reloading = False
@@ -87,16 +84,7 @@ class Gun(Entity):
                 Projectile(position = self.world_position,damage = self.bullet_damage,push = self.bullet_push,direction = self.position.normalized(),speed = self.bullet_speed,dont_hurt = [self,self.carrier])
                 
             else:
-                Audio(self.empty_sound_name,autoplay = True,loop = False)
-
-    def update_flying(self):
-        self.pivot.x = self.carrier.x
-        self.pivot.y = self.carrier.y
-
-        #
-
-        self.position = (mouse.position - self.carrier.screen_position).normalized()*1.2
-        
+                Audio(self.empty_sound_name,autoplay = True,loop = False)        
         
 
 

@@ -15,6 +15,9 @@ from guns_enum import Guns
 
 from counter_bar import CounterBar
 
+#borrar despres:
+from magnet import Magnet
+
 class Player(WorldElement):
     game_manager = None
     def __init__(self,position,integrity, max_integrity):
@@ -43,17 +46,17 @@ class Player(WorldElement):
         #end sword
 
 
-        #self.flying_item = Entity(model = "quad", scale = .3,parent = self.flying_item_pivot)
+        #self.secondary_item = Entity(model = "quad", scale = .3,parent = self.secondary_item_pivot)
         
-        self.flying_item = Guns.JERICHO.value #Guns.REVOLVER.value
-        #self.flying_item = Guns.NAIL_GUN.value #Guns.REVOLVER.value
-        
-        self.flying_item.carrier = self
+        #self.secondary_item = Guns.JERICHO.value #Guns.REVOLVER.value
+        #self.secondary_item = Guns.NAIL_GUN.value #Guns.REVOLVER.value
+        self.secondary_item = Magnet(name = "magnet",carrier = self)
+        self.secondary_item.carrier = self
         #goto treure
-        self.flying_item.bullets_in_chamber=5
+        self.secondary_item.bullets_in_chamber=5
         #
 
-        self.flying_item.x += 1.2
+        self.secondary_item.x += 1.2
 
         #
         self.color = color.blue
@@ -141,11 +144,14 @@ class Player(WorldElement):
 
         if key == CustomKeys.PARRY:
             self.parry()
-        if key == CustomKeys.USE_FLYING_ITEM:
-            self.flying_item.use()
+        if key == CustomKeys.USE_SECONDARY_ITEM:
+            self.secondary_item.use()
+
+        if key == CustomKeys.STOP_USING_FLYING_ITEM:
+            self.secondary_item.stop_using()
 
         if key == CustomKeys.RELOAD:
-            self.flying_item.reload()
+            self.secondary_item.reload()
 
         if key == CustomKeys.INTERACT:
             self.interact()
@@ -177,7 +183,7 @@ class Player(WorldElement):
 
         self.update_camera_pivot()
         self.sword.update_sword()
-        self.flying_item.update_flying()
+        self.secondary_item.update_flying()
 
         #self.position += (Vec3(0,1,0)*held_keys[CustomKeys.UP] + Vec3(0,-1,0)*held_keys[CustomKeys.DOWN] + Vec3(-1,0,0)*held_keys[CustomKeys.LEFT] + Vec3(1,0,0)*held_keys[CustomKeys.RIGHT])*time.dt*self.speed
         if held_keys[CustomKeys.UP]:
