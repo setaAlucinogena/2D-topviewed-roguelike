@@ -45,7 +45,6 @@ class Enemy(WorldElement):
         self.stunned = False
 
     def get_hit(self, damage, push, emitter):
-        print("GET DAMAGE")
         super().get_hit(damage, push, emitter)
         if self.stunneable:
             self.stun()

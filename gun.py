@@ -4,6 +4,9 @@ from ursina import *
 from math import atan2
 from secondary_item import SecondaryItem
 
+
+from nail import Nail
+
 #que gun sigui herencia de la classe "flying item" 
 #de aquesta classe fare lupa (per veure i detectar coses), mirall (per deflectir rajos laser), imant (per atreure metall)
 
@@ -81,7 +84,10 @@ class Gun(SecondaryItem):
 
                 Audio(self.shooting_sound_name,autoplay = True, loop = False)
 
-                Projectile(position = self.world_position,damage = self.bullet_damage,push = self.bullet_push,direction = self.position.normalized(),speed = self.bullet_speed,dont_hurt = [self,self.carrier])
+                if self.name == "nail gun":
+                    Nail(position = self.world_position, direction = self.position.normalized(),dont_hurt=[self.carrier])
+                else:
+                    Projectile(position = self.world_position,damage = self.bullet_damage,push = self.bullet_push,direction = self.position.normalized(),speed = self.bullet_speed,dont_hurt = [self,self.carrier])
                 
             else:
                 Audio(self.empty_sound_name,autoplay = True,loop = False)        

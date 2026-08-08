@@ -1,5 +1,5 @@
 from world_element import WorldElement,ElementType
-from ursina import time, destroy,color
+from ursina import time, destroy,color,Vec3
 from ursina.prefabs.trail_renderer import TrailRenderer
 
 class Projectile(WorldElement):
@@ -23,7 +23,8 @@ class Projectile(WorldElement):
         
         self.guided_towards = guided_towards
 
-        self.tr = TrailRenderer(size=(.8,.8), segments=8, min_spacing=.05, fade_speed=0, parent=self, color = color.yellow)
+        self.tr = TrailRenderer(size=(.8,.8), parent = self,segments=8, min_spacing=.05, fade_speed=0, color = color.yellow)
+        #https://github.com/pokepetter/ursina/blob/master/ursina/prefabs/trail_renderer.py
 
     def get_parried(self, emitter, parry_level = 0):
         self.last_parried_by = emitter

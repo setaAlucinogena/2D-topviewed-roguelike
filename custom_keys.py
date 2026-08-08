@@ -8,25 +8,13 @@ class CustomKeys:
 
     PARRY = "left mouse down"
     USE_SECONDARY_ITEM = "right mouse down"
-    STOP_USING_FLYING_ITEM = "left mouse down"
+    STOP_USING_SECONDARY_ITEM = "left mouse down"
     RELOAD = "r"
     INTERACT = "e"
 
     PAUSE = "p"
     GO_BACK = "escape"
 
-    #PARRY = "space"
+    CHANGE_SECONDARY_ITEM = "q"
 
-    #UP = "w"
-    #LEFT = "a"
-    #RIGHT = "d"
-    #DOWN = "s"
-
-
-    #HIT = "left mouse down"
-    #USE_AID = "right mouse down"
-    #STOP_USE_AID = "right mouse up"
-    #INTERACT = "e"
-    #INVENTORY = "i"
-    #RELOAD = "r"
 

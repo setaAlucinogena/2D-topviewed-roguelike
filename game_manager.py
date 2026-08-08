@@ -17,7 +17,12 @@ class GameManager:
         self.ground_z = .1
         self.characters_z = 0
         self.displayed_buttons = []
-        
+
+        self.guns_manager = None
+
+
+    def guns_manager_setter(self,gm):
+        self.guns_manager = gm
 
     def change_tick_speed(self,new_speed):
         self.tick_speed = abs(new_speed)#x si aca

@@ -1,4 +1,5 @@
 from ursina import *
+from ursina import destroy
 from copy import copy
 
 class CounterBar(Entity):
@@ -14,16 +15,19 @@ class CounterBar(Entity):
         self.units = []
             
     def update_bar(self,active,updated_max = None):
+        print("UPDATE BAR")
         if len(self.units) > 0:
+            for u in self.units:
+                destroy(u)
             self.units = []
 
         if updated_max != None:
+            print("updating max")
             self.max = updated_max
 
 
         cum_x = 0
         for i in range(self.max):
-            print("IT")
             if i < active:
                 current_unit = Entity(parent = self,color = color.red,model = "quad",scale = 1,texture = self.active_unit)
 
@@ -32,7 +36,6 @@ class CounterBar(Entity):
 
             current_unit.x = cum_x
             cum_x += current_unit.scale[0] + .15
-            #current_unit.alpha = 100
             self.units.append(current_unit)
 
                 

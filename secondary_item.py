@@ -18,3 +18,8 @@ class SecondaryItem(Entity):
         self.pivot.y = self.carrier.y
 
         self.position = (mouse.position - self.carrier.screen_position).normalized()*1.2
+
+    def stop_using(self):
+        pass
+    def reload(self):
+        pass

@@ -11,7 +11,7 @@ class Mosquito(Enemy):
     def __init__(self,position):
         super().__init__(
             position = position,
-            integrity = 3, 
+            integrity = 5, 
             hit_cooldown = 1,
             hit_damage = 1,
             hit_range = 1,#realment no es fa servir en aquest enemic pero bno
@@ -24,7 +24,9 @@ class Mosquito(Enemy):
 
             )
         
-        self.color = color.black
+        #self.color = color.black
+        self.texture = "mosquito_1.png"
+        self.scale = 3
         self.shake_duration = .2
         self.able_to_shake = True
         self.sprint_speed = self.speed * 2
@@ -40,7 +42,6 @@ class Mosquito(Enemy):
 
     def orientate(self):
         
-        print("aa?")
         
         if self.able_to_shake:
             self.able_to_shake = False
@@ -65,7 +66,7 @@ class Mosquito(Enemy):
         
 
     def go_back(self):
-        new_pos = Vec3(self.position[0]+self.back[0],self.position[1]+self.back[1],0)*3.5
+        new_pos = Vec3(self.position[0]+self.back[0],self.position[1]+self.back[1],0)*1.5
         self.animate_position(new_pos, duration = .75)
         self.temporal_non_hittable(time = 1.2)
 
@@ -73,13 +74,16 @@ class Mosquito(Enemy):
     def update(self):
         if self.game_manager.game_status != GameState.RUN:
             return
+
         super().update()
+
+        
+
 
         if distance(self,self.game_manager.player) <= self.attack_distance and self.able_to_sprint and not self.sprinting:
             self.attack()
 
         if self.sprinting:
-            print("YES")
             
             hit_info = raycast(self.position,direction = (self.game_manager.player.position - self.position),distance = self.hit_range,ignore = [self])
             if hit_info.hit:
@@ -88,13 +92,16 @@ class Mosquito(Enemy):
                     
                     #if entity.hittable == True and entity == self.game_manager.player:
                     if entity.hittable == True:
-                        print("Hitting smth")
                         hit_info.entity.get_hit(self.hit_damage, self.hit_push, self)
                         self.stop_sprint(2) #solucionar despres aixo, crear variables de current speed i walk speed i sprint speed i tal
                         self.go_back()
         else:
-            print("NO")
             self.rotation_z += random.uniform(-10,10)
             #invoke(self.reload_attack(),delay = self.)
 
-        self.follow()
+        if not self.dragged:
+
+            self.follow()
+
+
+

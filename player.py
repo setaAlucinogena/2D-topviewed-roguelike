@@ -11,7 +11,7 @@ from time import perf_counter
 from projectile import Projectile
 
 from swords_enum import Swords
-from guns_enum import Guns
+#from guns_manager import Guns
 
 from counter_bar import CounterBar
 
@@ -28,7 +28,10 @@ class Player(WorldElement):
             integrity = integrity, #treure
             element_type=ElementType.MOBILE
             )
-        self.speed = 3
+        self.speed = 12#4#3
+        self.movement_vector = Vec3(0,0,0)
+        #self.current_speed = self.speed
+
         self.max_integrity = max_integrity
 
 
@@ -50,7 +53,9 @@ class Player(WorldElement):
         
         #self.secondary_item = Guns.JERICHO.value #Guns.REVOLVER.value
         #self.secondary_item = Guns.NAIL_GUN.value #Guns.REVOLVER.value
-        self.secondary_item = Magnet(name = "magnet",carrier = self)
+        #self.secondary_item = Magnet(name = "magnet",carrier = self)
+        #self.secondary_item = Guns.NAIL_GUN.value
+        self.secondary_item = self.game_manager.guns_manager.nail_gun()
         self.secondary_item.carrier = self
         #goto treure
         self.secondary_item.bullets_in_chamber=5
@@ -61,10 +66,7 @@ class Player(WorldElement):
         #
         self.color = color.blue
 
-        self.dash_cooldown = 1
-        self.able_to_dash = True
-        self.dash_stride = 5
-        self.dash_duration = .3
+
 
         #bars:
         self.max_integrity = max_integrity
@@ -72,36 +74,12 @@ class Player(WorldElement):
         self.health_bar = CounterBar(position = (-.8,.4,0))
 
         self.health_bar.update_bar(active = self.integrity, updated_max = self.max_integrity)
-        
-
-    
 
     def update_camera_pivot(self):
         sp = world_position_to_screen_position(self.position)
-        if abs(sp.x) > 0.65:
-            self.camera_pivot.x += (sp.x / abs(sp.x)) * (self.speed)*time.dt
 
-
-        if abs(sp.y) > 0.3:
-            self.camera_pivot.y += (sp.y / abs(sp.y)) * (self.speed)*time.dt
-
-
-    def reload_dash(self):
-        self.able_to_dash = True
-
-    #def dash(self):
-    #    if self.able_to_dash:
-    #        self.able_to_dash = False
-    #        invoke(self.reload_dash,delay = self.dash_cooldown)
-    #        print("dash")
-    #        direction = (
-    #            held_keys[CustomKeys.UP]*Vec3(0,1,0) + 
-    #            held_keys[CustomKeys.DOWN]*Vec3(0,-1,0) + 
-    #            held_keys[CustomKeys.RIGHT]*Vec3(1,0,0) + 
-    #            held_keys[CustomKeys.LEFT]*Vec3(-1,1,0) 
-    #        )
-
-    #        self.animate_position(value = (self.position + direction.normalized()*self.dash_stride),duration = self.dash_duration)
+        if abs(sp.x) > 0.65 or abs(sp.y) > 0.3: #out of 
+            self.camera_pivot.position += self.movement_vector * time.dt
 
     def parry(self):
         self.sword.parry()
@@ -147,7 +125,7 @@ class Player(WorldElement):
         if key == CustomKeys.USE_SECONDARY_ITEM:
             self.secondary_item.use()
 
-        if key == CustomKeys.STOP_USING_FLYING_ITEM:
+        if key == CustomKeys.STOP_USING_SECONDARY_ITEM:
             self.secondary_item.stop_using()
 
         if key == CustomKeys.RELOAD:
@@ -156,25 +134,31 @@ class Player(WorldElement):
         if key == CustomKeys.INTERACT:
             self.interact()
 
+
+        if key == CustomKeys.CHANGE_SECONDARY_ITEM:
+            destroy(self.secondary_item,delay = 0)
+
+            self.secondary_item = Magnet(name = "magnet",carrier = self)
+
+       
         if key == "x":
             self.get_hit(1,0,self)
-        #comprovacio pel dash:
-        #if key == CustomKeys.DASH:
-        #    self.dash()
-        
+       
 
     ####deixo aquesta funcio aqui provisionalment. mes endavant creare la classe pistola
     def get_hit(self,damage,push,emitter):
         super().get_hit(damage,push,emitter)
         camera.shake()
-        self.health_bar.update_bar(active = self.integrity, updated_max = self.max_integrity)
+        self.health_bar.update_bar(active = self.integrity)
 
     def die(self):
         pass
 
+
     def update(self):
         if self.game_manager.game_status != GameState.RUN:
             return
+
 
         if self.integrity <= 0:
             self.die()
@@ -186,28 +170,20 @@ class Player(WorldElement):
         self.secondary_item.update_flying()
 
         #self.position += (Vec3(0,1,0)*held_keys[CustomKeys.UP] + Vec3(0,-1,0)*held_keys[CustomKeys.DOWN] + Vec3(-1,0,0)*held_keys[CustomKeys.LEFT] + Vec3(1,0,0)*held_keys[CustomKeys.RIGHT])*time.dt*self.speed
+
+        #desplaçament:::
+        d_vec = Vec3(0,0,0)
         if held_keys[CustomKeys.UP]:
-           if not (held_keys[CustomKeys.LEFT] or held_keys[CustomKeys.RIGHT]):
-                self.position += Vec3(0,1,0) * self.speed * time.dt
-           else:
-                if held_keys[CustomKeys.LEFT]:
-                   self.position += Vec3(-1,1,0) * sqrt(self.speed) * time.dt
-                if held_keys[CustomKeys.RIGHT]:
-                   self.position += Vec3(1,1,0) * sqrt(self.speed) * time.dt
+            d_vec[1] += 1
+        if held_keys[CustomKeys.DOWN]:
+            d_vec[1] -= 1
+        if held_keys[CustomKeys.LEFT]:
+            d_vec[0] -= 1
+        if held_keys[CustomKeys.RIGHT]:
+            d_vec[0] += 1
+        
+        self.movement_vector = d_vec.normalized() * self.speed
 
-        if held_keys[CustomKeys.DOWN]: 
-            if not (held_keys[CustomKeys.LEFT] or held_keys[CustomKeys.RIGHT]):
-                self.position += Vec3(0,-1,0) * self.speed * time.dt
-            else:
-                if held_keys[CustomKeys.LEFT]:
-                   self.position += Vec3(-1,-1,0) * sqrt(self.speed) * time.dt
-                if held_keys[CustomKeys.RIGHT]:
-                   self.position += Vec3(1,-1,0) * sqrt(self.speed) * time.dt
-
-        if held_keys[CustomKeys.LEFT] and not (held_keys[CustomKeys.UP] or held_keys[CustomKeys.DOWN]):
-            self.position += Vec3(-1,0,0) * sqrt(self.speed) * time.dt 
-        if held_keys[CustomKeys.RIGHT] and not (held_keys[CustomKeys.UP] or held_keys[CustomKeys.DOWN]):
-            self.position += Vec3(1,0,0) * sqrt(self.speed) * time.dt 
-            
+        self.position += d_vec.normalized() * self.speed * time.dt
 
 
